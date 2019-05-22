@@ -139,7 +139,7 @@ $(document).ready(function() {
       if (next_char === "\n") new_line_counter++;
     }*/
     let j = 0;
-    while(True) {
+    while(true) {
       j+=1;
       predictions = model.predict(input_eval);
       predictions = tf.squeeze(predictions, 0);
