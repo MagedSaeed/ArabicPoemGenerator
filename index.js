@@ -138,9 +138,9 @@ $(document).ready(function() {
       await tf.nextFrame();
       if (next_char === "\n") new_line_counter++;
     }*/
-    let i = 0;
+    let j = 0;
     while(True) {
-      i+=1;
+      j+=1;
       predictions = model.predict(input_eval);
       predictions = tf.squeeze(predictions, 0);
       predicted_id = tf.multinomial(predictions, (num_samples = 1));
@@ -148,7 +148,7 @@ $(document).ready(function() {
       input_eval = tf.expandDims([predicted_id], 0);
       next_char = idx2char[predicted_id];
       text_generated.push(idx2char[predicted_id]);
-      if (next_char === "\n") && i > num_generate ){
+      if (next_char === "\n") && j > num_generate ){
         break
       }
       if (next_char === "\t") continue;
