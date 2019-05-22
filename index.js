@@ -1,4 +1,6 @@
 $(document).ready(function() {
+
+  //map the indices to characters
   idx2char = [
     "\t",
     "\n",
@@ -40,7 +42,7 @@ $(document).ready(function() {
     "ى",
     "ي"
   ];
-
+  //map the characters to indices 
   char2idx = {
     "\t": 0,
     "\n": 1,
@@ -82,77 +84,98 @@ $(document).ready(function() {
     ى: 37,
     ي: 38
   };
+
+  //some initialization
   model = null;
   $(".inputs").hide();
   $(".outputs").hide();
+
+  //start the model 
   start();
+
+  /* 
+   * This function loads the model to the memory. 
+   *
+   */
   async function start() {
     //load the model
     model = await tf.loadLayersModel("model-200/model.json");
-    // generate_text(model);
     $("#loader").hide();
     $(".inputs").show("slow");
     $(".outputs").show("slow");
   }
 
+  /* 
+   * Generate the text once the start button is pressed
+   *
+   */
+
   $(".submit").on("click", function() {
     generate_text(model);
   });
 
+  /* 
+   * generate the text using the loaded model 
+   *
+   */
+
   async function generate_text(model) {
-    // start_string = "سلام";
-    model.summary();
+    
+    //take initial seed 
     start_string = $(".inputs input").val();
-    console.log(start_string);
 
-    num_generate = 200;
+    //number of characters to generate 
+    num_generate = 150;
 
+    //map the input to indices 
     input_eval = [];
-
     for (var i = 0; i < start_string.length; i++) {
       input_eval.push(char2idx[start_string.charAt(i)]);
     }
 
+    //preprocess the input
     input_eval = tf.tensor(input_eval);
     input_eval = tf.expandDims(input_eval, 0);
 
     text_generated = [];
 
-    temperature = 1.0;
-    console.log("looping");
     $(".output-text").text(start_string);
     
-    /*
-    new_line_counter = 0;
-    while (new_line_counter < 10) {
-      predictions = model.predict(input_eval);
-      predictions = tf.squeeze(predictions, 0);
-
-      predicted_id = tf.multinomial(predictions, (num_samples = 1));
-      predicted_id = predicted_id.dataSync()[0];
-      input_eval = tf.expandDims([predicted_id], 0);
-      next_char = idx2char[predicted_id];
-      text_generated.push(idx2char[predicted_id]);
-      if (next_char === "\t") continue;
-      $(".output-text").text($(".output-text").text() + next_char);
-      await tf.nextFrame();
-      if (next_char === "\n") new_line_counter++;
-    }*/
     let j = 0;
+
+    //loop until we exceed num_generated and we have a new line
     while(true) {
       j+=1;
+
+      //get predictions for the input 
       predictions = model.predict(input_eval);
+
+      //postprocess the results
       predictions = tf.squeeze(predictions, 0);
+
+      //we sample the next char so we don't loop
       predicted_id = tf.multinomial(predictions, (num_samples = 1));
+
+      //postprocessing steps
       predicted_id = predicted_id.dataSync()[0];
       input_eval = tf.expandDims([predicted_id], 0);
+
+      //get the next char 
       next_char = idx2char[predicted_id];
       text_generated.push(idx2char[predicted_id]);
+
+      //break if we exceed the maximum and we have a new line 
       if ((next_char === "\n") && (j > num_generate )){
         break
       }
+
+      //ignore tab 
       if (next_char === "\t") continue;
+
+      //show the output 
       $(".output-text").text($(".output-text").text() + next_char);
+
+      //allow th gui to show the results 
       await tf.nextFrame();
     }
   }
