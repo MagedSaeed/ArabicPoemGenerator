@@ -148,7 +148,7 @@ $(document).ready(function() {
       input_eval = tf.expandDims([predicted_id], 0);
       next_char = idx2char[predicted_id];
       text_generated.push(idx2char[predicted_id]);
-      if (next_char === "\n") && (j > num_generate ){
+      if ((next_char === "\n") && (j > num_generate )){
         break
       }
       if (next_char === "\t") continue;
