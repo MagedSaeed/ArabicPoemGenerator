@@ -105,7 +105,7 @@ $(document).ready(function() {
     start_string = $(".inputs input").val();
     console.log(start_string);
 
-    num_generate = 250;
+    num_generate = 200;
 
     input_eval = [];
 
@@ -121,6 +121,8 @@ $(document).ready(function() {
     temperature = 1.0;
     console.log("looping");
     $(".output-text").text(start_string);
+    
+    /*
     new_line_counter = 0;
     while (new_line_counter < 10) {
       predictions = model.predict(input_eval);
@@ -135,22 +137,23 @@ $(document).ready(function() {
       $(".output-text").text($(".output-text").text() + next_char);
       await tf.nextFrame();
       if (next_char === "\n") new_line_counter++;
-    }
-    for (i = 0; i < num_generate; i++) {
+    }*/
+    let i = 0;
+    while(True) {
+      i+=1;
       predictions = model.predict(input_eval);
       predictions = tf.squeeze(predictions, 0);
-
       predicted_id = tf.multinomial(predictions, (num_samples = 1));
       predicted_id = predicted_id.dataSync()[0];
       input_eval = tf.expandDims([predicted_id], 0);
       next_char = idx2char[predicted_id];
       text_generated.push(idx2char[predicted_id]);
+      if (next_char === "\n") && i > num_generate ){
+        break
+      }
       if (next_char === "\t") continue;
       $(".output-text").text($(".output-text").text() + next_char);
       await tf.nextFrame();
     }
-
-    console.log(text_generated.join(""));
-    // return text_generated;
   }
 });
